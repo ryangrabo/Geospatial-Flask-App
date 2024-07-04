@@ -1,0 +1,12 @@
+
+1) Activate Virtual Environment in command prompt or terminal:
+
+        .\venv\Scripts\activate
+
+2) pip install with virtual Environment
+
+    pip install -r requirements.txt
+
+3) run Program
+
+    python run.py

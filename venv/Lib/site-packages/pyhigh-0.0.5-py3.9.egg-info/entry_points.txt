@@ -1,0 +1,3 @@
+[console_scripts]
+pyhigh = pyhigh.pyhigh:main
+

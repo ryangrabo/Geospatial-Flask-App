@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive Map</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        .marker {
+            background-image: url('https://docs.mapbox.com/help/demos/custom-markers-gl-js/mapbox-icon.png');
+            background-size: cover;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transform-origin: center center; /* Center the rotation */
+        }
+        .popup img {
+            max-width: 100px; /* Default max width for the image */
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .style-buttons, .size-input, .upload-button, .categorize-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .style-buttons button, .size-input input {
+            margin: 2px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .size-input {
+            left: auto;
+            right: 10px;
+        }
+        .upload-button {
+            top: 60px;
+        }
+        .categorize-button {
+            top: 110px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="style-buttons">
+        <button onclick="setMapStyle('mapbox://styles/mapbox/streets-v11')">Streets</button>
+        <button onclick="setMapStyle('mapbox://styles/mapbox/light-v10')">Light</button>
+        <button onclick="setMapStyle('mapbox://styles/mapbox/dark-v10')">Dark</button>
+        <button onclick="setMapStyle('mapbox://styles/mapbox/satellite-v9')">Satellite</button>
+        <button onclick="setMapStyle('mapbox://styles/mapbox/satellite-streets-v11')">Satellite Streets</button>
+        <button onclick="setMapStyle('mapbox://styles/mapbox/outdoors-v11')">Outdoors</button>
+    </div>
+    <div class="size-input">
+        <label for="imageSize">Image Size:</label>
+        <input type="range" id="imageSize" name="imageSize" min="50" max="300" value="100" oninput="updateImageSize(this.value)">
+    </div>
+    <div class="upload-button">
+        <button onclick="location.href='/upload'">Upload Images</button>
+    </div>
+    <div class="categorize-button">
+        <button onclick="location.href='/categorize'">Categorize Images</button>
+    </div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZ3JhYm9yeWFuIiwiYSI6ImNseGU0NHhmZDBjbDkybXB3bDN0ZmczbzYifQ.s4KEylM81zTN8YVKutHasQ';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-79.986255, 42.124078],
+            zoom: 12
+        });
+
+        var currentImageSize = 100; // Default image size
+        var markers = []; // Store markers to remove them later
+
+        function addMarkers() {
+            // Remove existing markers
+            markers.forEach(marker => marker.remove());
+            markers = [];
+
+            fetch('/images')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(image => {
+                        var el = document.createElement('div');
+                        el.className = 'marker';
+                        el.style.transform = `rotate(${image.yaw}deg)`; // Rotate the marker based on yaw
+                        var popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                            `<h3>${image.filename}</h3>
+                             <p>Altitude: ${image.alt} feet</p>
+                             <img src="/static/images/${image.filename}" alt="${image.filename}" style="max-width: ${currentImageSize}px; height: auto; display: block; margin: 0 auto;">`
+                        );
+
+                        var marker = new mapboxgl.Marker(el)
+                            .setLngLat([image.lon, image.lat])
+                            .setPopup(popup)
+                            .addTo(map);
+
+                        markers.push(marker); // Add marker to the array
+                    });
+                });
+        }
+
+        function updateImageSize(size) {
+            currentImageSize = size;
+            addMarkers(); // Re-add markers with updated image size
+        }
+
+        map.on('load', function () {
+            addMarkers();
+        });
+
+        function setMapStyle(style) {
+            map.setStyle(style);
+            map.on('style.load', function() {
+                addMarkers();
+            });
+        }
+
+        map.addControl(new mapboxgl.NavigationControl());
+    </script>
+</body>
+</html>

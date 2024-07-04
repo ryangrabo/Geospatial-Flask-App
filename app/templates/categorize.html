@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Categorize Images</title>
+    <style>
+        .image-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .image-container img {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        .image-container form {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Categorize Images</h1>
+    <div>
+        {% for image in images %}
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='images/' + image.filename) }}" alt="{{ image.filename }}">
+            <form method="POST" action="{{ url_for('main.categorize_images') }}">
+                <button type="submit" name="category" value="phragmites|{{ image.filename }}">Phragmites</button>
+                <button type="submit" name="category" value="narrowleaf_cattail|{{ image.filename }}">Narrowleaf Cattail</button>
+                <button type="submit" name="category" value="yellow_iris|{{ image.filename }}">Yellow Iris</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

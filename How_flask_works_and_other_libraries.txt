@@ -1,0 +1,145 @@
+How Flask Works and Program Flow
+
+1) Initialization:
+
+    create_app(): Initializes the Flask application and sets up configurations such as the upload folder.
+    It also ensures the upload directory exists and registers the 'main' Blueprint.
+
+2) Routing:
+
+    routes.py: Defines various routes/endpoints. 
+    The @bp.route('/') decorator defines the route for the index page, which renders index.html. 
+    The /images route returns JSON data of images with their metadata. 
+    The /upload route handles file uploads, allowing users to upload multiple images.
+
+3) File Handling:
+
+    Uploaded images are saved to the static/images directory. The allowed_file() function ensures only allowed file types are processed.
+
+4) EXIF Metadata Extraction:
+
+    exifread library is used to read metadata from the uploaded images. 
+    The metadata includes GPS coordinates, altitude, and camera orientation.
+
+5) Web Interface:
+
+    HTML templates (upload.html and index.html) provide a user-friendly interface for uploading images and viewing an interactive map through MapBoxAPI. 
+    The map displays markers for each image, showing its location and metadata.
+
+6) JavaScript:
+
+    JavaScript functions in the HTML files handle dynamic features such as image previews, zooming, and setting map styles.
+
+7) Running the Application:
+
+    run.py: Starts the Flask web server on port 5001. 
+    The server handles incoming requests, processes them, and returns appropriate responses.
+
+Detailed Flow for the application
+
+1) User navigates to the web application URL:
+    
+    Browser sends a GET request to the Flask server.
+
+2) Flask server handles the request:
+
+    '/': Renders the home page (index.html).
+    '/upload': Handles GET requests to show the upload form and POST requests to process uploaded images.
+
+3) User uploads images:
+
+    Browser sends a POST request with the image files to the /upload route.
+    Flask saves the images and extracts metadata using exifread.
+
+4) User requests to view images on the map:
+
+    Browser sends a GET request to the /images route.
+    Flask processes images and responds with a JSON object containing image metadata.
+
+5) Browser updates the map with image markers:
+
+    JavaScript in index.html processes the JSON response and adds markers to the Mapbox map based on image metadata.
+
+Stack Flow of the Flask Application
+
+1) User Interaction (Front End)
+
+Browser: The user opens their web browser and navigates to the web application URL.
+
+HTML/CSS/JavaScript: The browser requests the HTML, CSS, and JavaScript files from the server to render the web page. 
+    These files create the user interface that the user interacts with.
+
+Mapbox: A JavaScript library is used to display an interactive map on the web page.
+
+2) Routing and Request Handling (Back End)
+
+Flask Application: When the user interacts with the web application (e.g., by uploading an image or requesting to see images on the map),
+     the browser sends an HTTP request to the Flask server.
+
+Flask Routes (routes.py): The Flask application defines various routes (URLs) to handle different types of requests.
+    For example, the / route renders the home page, and the /upload route handles image uploads.
+
+Blueprints: The application uses Flask blueprints to organize routes. The main blueprint is used for this purpose.
+
+3) Processing Requests (Back End)
+
+Upload Handling: When a user uploads an image via the /upload route:
+    The uploaded image is saved to the static/images directory.
+    EXIF data from the image is read using the exifread library.
+    EXIF Data Extraction: The application processes the image to extract GPS and orientation metadata.
+
+Image Processing: The process_images.py script moves images based on their pitch data 
+    extracted from the EXIF metadata using the exiftool.exe.
+
+4) Database Interaction
+not implemented yet
+
+5) Generating Responses (Back End)
+
+JSON Responses: For routes like /images, the Flask application processes the images and returns a 
+    JSON response containing metadata (latitude, longitude, yaw, altitude) of the images.
+
+HTML Templates: Flask uses the Jinja2 template engine to render HTML templates (e.g., index.html, upload.html) with dynamic data.
+
+6) Rendering and User Feedback (Front End)
+
+Dynamic Content: The browser receives the JSON or HTML response from the server. 
+    For JSON responses, JavaScript on the client side processes the data and updates the web page dynamically
+     (e.g., adding markers to the map based on image metadata).
+
+User Interface Updates: The browser updates the UI based on the received data, providing visual feedback to the
+     user with markers on where the images were taken
+
+How Mapbox Backend Works
+1) Data Collection and Storage:
+
+    Mapbox collects geospatial data from various sources, including OpenStreetMap, satellite imagery providers, and proprietary datasets.
+    This data is processed and stored in high-performance geospatial databases.
+
+2) Data Processing and Tiling:
+
+    The raw geospatial data is processed into map tiles.
+    This involves cutting the map into small tiles, each representing a specific geographic area.
+    The tiles are generated in various styles and formats, including vector and raster.
+
+3) APIs and Services:
+
+    Mapbox provides a suite of APIs that developers use to access map tiles, geocoding services, routing information, and more.
+    These APIs are served from a global network of servers to ensure low latency and high availability.
+
+4) User Authentication and Access Control:
+
+    Developers create accounts and obtain access tokens to use Mapbox services.
+    Mapbox tracks usage based on these tokens to enforce quotas and billing.
+    Right now since this app is lowscale, you dont need to pay for access token
+
+5) Rendering and Delivery:
+
+    When a user requests a map, Mapbox's servers fetch the appropriate tiles and render them in the specified style.
+    The rendered tiles are delivered to the user's device, where they are displayed in the application.
+
+6) Analytics and Monitoring:
+
+    Mapbox tracks and logs various metrics related to the usage of its services, 
+        including the number of API requests, the performance of those requests, and any errors encountered.
+    Developers can access this information through the Mapbox dashboard to monitor their application's performance and usage.

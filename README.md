@@ -1,91 +1,109 @@
-# Geospatial-Flask-App
+
+# Geospatial Flask App
+
 A Flask-based web application for geospatial data visualization and analysis, allowing users to upload images, extract EXIF metadata, and view locations on an interactive map.
 
-Features
-Image Upload: Upload multiple images to the server.
-Metadata Extraction: Extract GPS coordinates, altitude, and camera orientation from images using exifread.
-Interactive Map: Display images on a map with markers using Mapbox.
+## Features
 
-Installation
-Clone the repository:
+- **Image Upload**: Upload multiple images to the server.
+- **Metadata Extraction**: Extract GPS coordinates, altitude, and camera orientation from images using `exifread`.
+- **Interactive Map**: Display images on a map with markers using Mapbox.
 
-git clone https://github.com/ryangrabo/Geospatial-Flask-App.git
-cd Geospatial-Flask-App
-Create a virtual environment:
-`venv\Scripts\activate`
+## Installation
 
-Install dependencies:
-pip install -r requirements.txt
+1. **Clone the repository:**
 
-Configuration
-Set up environment variables:
+    ```bash
+    git clone https://github.com/ryangrabo/Geospatial-Flask-App.git
+    cd Geospatial-Flask-App
+    ```
 
-Create a .env file in the project root directory and add the necessary environment variables, for example:
+2. **Create a virtual environment:**
 
-bash
-Copy code
-FLASK_APP=app.py
-FLASK_ENV=development
-Usage
-Run the application:
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    ```
 
-bash
-Copy code
-flask run
-Open your web browser:
+3. **Install dependencies:**
 
-Navigate to http://127.0.0.1:5000 to access the application.
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-Application Flow
-Initialization:
+## Configuration
 
-create_app(): Initializes the Flask application and sets up configurations, including the upload folder.
-Registers the 'main' Blueprint.
-Routing:
+1. **Set up environment variables:**
 
-routes.py: Defines routes for index page, image uploads, and JSON data of images.
-/: Renders the home page.
-/upload: Handles image uploads.
-/images: Returns image metadata in JSON format.
+    Create a `.env` file in the project root directory and add the necessary environment variables, for example:
 
-File Handling:
+    ```bash
+    FLASK_APP=app.py
+    FLASK_ENV=development
+    ```
 
-Uploaded images are saved in static/images.
-allowed_file(): Ensures only allowed file types are processed.
-Metadata Extraction:
+## Usage
 
-Uses exifread to read EXIF metadata, including GPS coordinates and camera orientation.
-Web Interface:
+1. **Run the application:**
 
-HTML templates (upload.html and index.html) for uploading images and viewing the map.
-JavaScript for dynamic features such as image previews and map interactions.
-Running the Application:
+    ```bash
+    flask run
+    ```
 
-run.py: Starts the Flask server on port 5001.
+2. **Open your web browser:**
 
-Detailed Flow
-User navigates to the web application URL:
+    Navigate to `http://127.0.0.1:5000` to access the application.
 
-Browser sends a GET request to the Flask server.
-Flask server handles the request and renders the home page.
-User uploads images:
+## Application Flow
 
-Browser sends a POST request with images to /upload.
-Flask saves images and extracts metadata.
-User views images on the map:
+1. **Initialization**:
+    - `create_app()`: Initializes the Flask application and sets up configurations, including the upload folder.
+    - Registers the 'main' Blueprint.
 
-Browser sends a GET request to /images.
-Flask responds with a JSON object containing image metadata.
-JavaScript processes the JSON response and updates the map with markers.
-Mapbox Integration
-Collects and processes geospatial data into map tiles.
-Provides APIs for accessing map tiles, geocoding services, and more.
-Renders and delivers map tiles to the user's device for display.
+2. **Routing**:
+    - `routes.py`: Defines routes for index page, image uploads, and JSON data of images.
+    - `/`: Renders the home page.
+    - `/upload`: Handles image uploads.
+    - `/images`: Returns image metadata in JSON format.
 
+3. **File Handling**:
+    - Uploaded images are saved in `static/images`.
+    - `allowed_file()`: Ensures only allowed file types are processed.
 
-Acknowledgements
+4. **Metadata Extraction**:
+    - Uses `exifread` to read EXIF metadata, including GPS coordinates and camera orientation.
+
+5. **Web Interface**:
+    - HTML templates (`upload.html` and `index.html`) for uploading images and viewing the map.
+    - JavaScript for dynamic features such as image previews and map interactions.
+
+6. **Running the Application**:
+    - `run.py`: Starts the Flask server on port 5001.
+
+## Detailed Flow
+
+1. **User navigates to the web application URL**:
+    - Browser sends a GET request to the Flask server.
+    - Flask server handles the request and renders the home page.
+
+2. **User uploads images**:
+    - Browser sends a POST request with images to `/upload`.
+    - Flask saves images and extracts metadata.
+
+3. **User views images on the map**:
+    - Browser sends a GET request to `/images`.
+    - Flask responds with a JSON object containing image metadata.
+    - JavaScript processes the JSON response and updates the map with markers.
+
+## Mapbox Integration
+
+- Collects and processes geospatial data into map tiles.
+- Provides APIs for accessing map tiles, geocoding services, and more.
+- Renders and delivers map tiles to the user's device for display.
+
+## Acknowledgements
+
 This project uses several open-source libraries and tools, including:
-
-Flask
-exifread
-Mapbox
+- Flask
+- exifread
+- Mapbox

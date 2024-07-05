@@ -6,7 +6,7 @@ A Flask-based web application for geospatial data visualization and analysis, al
 ## Features
 
 - **Image Upload**: Upload multiple images to the server.
-- **Metadata Extraction**: Extract GPS coordinates, altitude, and camera orientation from images using `exifread`.
+- **Metadata Extraction**: Extract GPS coordinates, altitude, and camera orientation from images using `exifread`. Using exiftool.exe to extract camera pitch. 
 - **Interactive Map**: Display images on a map with markers using Mapbox.
 
 ## Installation
@@ -22,7 +22,7 @@ A Flask-based web application for geospatial data visualization and analysis, al
 
     ```bash
     python3 -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    source venv/bin/activate  # For Windows, use `venv\Scripts\activate`
     ```
 
 3. **Install dependencies:**
@@ -47,7 +47,7 @@ A Flask-based web application for geospatial data visualization and analysis, al
 1. **Run the application:**
 
     ```bash
-    flask run
+    python run.py
     ```
 
 2. **Open your web browser:**

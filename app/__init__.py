@@ -3,7 +3,8 @@ from flask import Flask
 
 def create_app():
     app = Flask(__name__)
-    app.secret_key = 'supersecretkey'
+    app.secret_key = os.getenv('SECRET_KEY')
+    
     UPLOAD_FOLDERS = [
         os.path.abspath(os.path.join(app.root_path, 'static', 'images', 'phragmites')),
         os.path.abspath(os.path.join(app.root_path, 'static', 'images', 'narrowleaf_cattail')),

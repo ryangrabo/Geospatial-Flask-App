@@ -1,0 +1,30 @@
+How to Run the Script
+
+1) Install exiftool: Download and install exiftool. Already in file.
+
+2) Update the path to exiftool.exe in the get_camera_orientation_pitch function:
+    command = [
+        'exiftool.exe',
+        '-json',
+        '-CameraOrientationNEDPitch',
+        filepath
+    ]
+3) Set Up Directory Paths: Make sure your directory structure is set up correctly.
+    Update the source and destination directories in the if __name__ == "__main__": section:
+
+        source_dir = r'C:\path\to\directory\geospatial-flask-app\app\static\images'
+        range_40_50_dir = r'C:\path\to\directory\geospatial-flask-app\app\static\images\range_40_50'
+        range_55_65_dir = r'C:\path\to\directory\geospatial-flask-app\app\static\images\range_55_65'
+4) Activate Virtual Environment in command prompt or terminal:
+
+        .\venv\Scripts\activate
+
+5) Run the Script:
+
+        python process_images.py
+
+6) Check Output:
+
+        The script will print the image filenames and their pitch values.
+        Images will be moved to the respective directories based on their pitch values.
+        If no pitch data is available, it will print a message indicating so.

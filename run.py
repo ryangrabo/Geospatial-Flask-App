@@ -1,9 +1,11 @@
-# Import the create_app function from the app package
 from app import create_app
+from dotenv import load_dotenv
+import os
 
-# Create the Flask application instance
+# Load environment variables from .env file
+load_dotenv()
+
 app = create_app()
 
-# Run the Flask application
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)  # You can change to any other available port
+    app.run(port=5001)

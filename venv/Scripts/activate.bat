@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=D:\Users\Kevin\Flask App\Geospatial-Flask-App\venv
+set VIRTUAL_ENV=C:\Users\Kevin\Geospatial-Flask-App\venv
 
 if not defined PROMPT set PROMPT=$P$G
 

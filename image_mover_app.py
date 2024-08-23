@@ -1,113 +1,150 @@
 import os
 import shutil
-from tkinter import Tk, Button, Label, Entry, Text, filedialog, messagebox, PhotoImage
+from tkinter import Tk, Button, Label, Entry, Text, filedialog, Frame
 from PIL import Image, ImageTk
 
 class ImageMoverApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Image Mover")
-        self.source_directory = ""
+        self.root.geometry("800x600")
+        self.source_directory = "C:/Users/rxg5517/OneDrive - The Pennsylvania State University/DRONES ONLY/unprocessed_images"
         self.image_files = []
         self.current_image_index = 0
-        
-        self.picture_label = Label(self.root)
-        self.picture_label.grid(row=0, column=1, columnspan=3)
+        self.current_image = None
 
-        self.select_image_dir_button = Button(root, text="Choose Image Directory", command=self.select_image_directory)
-        self.select_image_dir_button.grid(row=1, column=1)
-        
-        self.select_dest1_button = Button(root, text="Choose Phragmite folder", command=lambda: self.select_destination(1))
-        self.select_dest1_button.grid(row=2, column=1)
-        
-        self.select_dest2_button = Button(root, text="Choose Cattail folder", command=lambda: self.select_destination(2))
-        self.select_dest2_button.grid(row=3, column=1)
-        
-        self.select_dest3_button = Button(root, text="Choose Purple Loosetrife", command=lambda: self.select_destination(3))
-        self.select_dest3_button.grid(row=4, column=1)
-        
-        self.dest1_label = Label(root, text="Phragmite:")
-        self.dest1_label.grid(row=2, column=2)
-        
-        self.dest1_entry = Entry(root, width=50)
-        self.dest1_entry.grid(row=2, column=3)
-        
-        self.dest2_label = Label(root, text="Cattail:")
-        self.dest2_label.grid(row=3, column=2)
-        
-        self.dest2_entry = Entry(root, width=50)
-        self.dest2_entry.grid(row=3, column=3)
-        
-        self.dest3_label = Label(root, text="Purple Loosetrife:")
-        self.dest3_label.grid(row=4, column=2)
-        
-        self.dest3_entry = Entry(root, width=50)
-        self.dest3_entry.grid(row=4, column=3)
+        # Default destination directories
+        self.default_destinations = [
+            "C:/Users/rxg5517/OneDrive - The Pennsylvania State University/DRONES ONLY/phragmites",
+            "C:/Users/rxg5517/OneDrive - The Pennsylvania State University/DRONES ONLY/narrowleaf_cattail",
+            "C:/Users/rxg5517/OneDrive - The Pennsylvania State University/DRONES ONLY/purple_loosestrife"
+        ]
 
-        self.move_to_dest1_button = Button(root, text="Move to Destination 1", command=lambda: self.move_image(1))
-        self.move_to_dest1_button.grid(row=2, column=4)
+        self.setup_ui()
+        self.load_images()
+        self.root.update()  # Force an update of the window
+        self.root.after(100, self.update_image)  # Schedule image update after a short delay
 
-        self.move_to_dest2_button = Button(root, text="Move to Destination 2", command=lambda: self.move_image(2))
-        self.move_to_dest2_button.grid(row=3, column=4)
+    def setup_ui(self):
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
 
-        self.move_to_dest3_button = Button(root, text="Move to Destination 3", command=lambda: self.move_image(3))
-        self.move_to_dest3_button.grid(row=4, column=4)
-        
-        self.delete_button = Button(root, text="Delete Current Image", command=self.delete_current_image, bg="red", fg="white")
-        self.delete_button.grid(row=5, column=2)
+        main_frame = Frame(self.root, bg="#f0f0f0")
+        main_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        main_frame.grid_rowconfigure(0, weight=1)
+        main_frame.grid_columnconfigure(1, weight=1)
 
-        self.log_text = Text(root, height=10, width=80)
-        self.log_text.grid(row=6, column=1, columnspan=4)
+        left_frame = Frame(main_frame, bg="#f0f0f0")
+        left_frame.grid(row=0, column=0, sticky="ns", padx=(0, 10))
 
-    def log_message(self, message):
-        self.log_text.insert('end', message + "\n")
-        self.log_text.see('end')
+        right_frame = Frame(main_frame, bg="#f0f0f0")
+        right_frame.grid(row=0, column=1, sticky="nsew")
+        right_frame.grid_rowconfigure(0, weight=1)
+        right_frame.grid_columnconfigure(0, weight=1)
 
-    def select_image_directory(self):
-        self.source_directory = filedialog.askdirectory()
+        # Image display
+        self.image_frame = Frame(right_frame, bg="white", width=500, height=400)
+        self.image_frame.grid(row=0, column=0, sticky="nsew")
+        self.image_frame.grid_propagate(False)
+
+        self.picture_label = Label(self.image_frame, bg="white")
+        self.picture_label.place(relx=0.5, rely=0.5, anchor="center")
+
+        # Buttons
+        button_style = {"font": ("Arial", 10), "bg": "#4CAF50", "fg": "white", "padx": 10, "pady": 5}
+
+        self.select_image_dir_button = Button(left_frame, text="Choose Image Directory", command=self.select_image_directory, **button_style)
+        self.select_image_dir_button.pack(fill="x", pady=(0, 10))
+
+        for i, text in enumerate(["Phragmite", "Cattail", "Purple Loosetrife"]):
+            setattr(self, f"select_dest{i+1}_button", Button(left_frame, text=f"Choose {text} folder", command=lambda i=i: self.select_destination(i+1), **button_style))
+            getattr(self, f"select_dest{i+1}_button").pack(fill="x", pady=(0, 5))
+
+        # Destination entries with default paths
+        for i, text in enumerate(["Phragmite", "Cattail", "Purple Loosestrife"]):
+            frame = Frame(right_frame, bg="#f0f0f0")
+            frame.grid(row=i+1, column=0, sticky="ew", pady=(0, 5))
+            
+            Label(frame, text=f"{text}:", bg="#f0f0f0", font=("Arial", 10)).pack(side="left", padx=(0, 5))
+            entry = Entry(frame, font=("Arial", 10))
+            entry.insert(0, self.default_destinations[i])  # Set default destination
+            entry.pack(side="left", expand=True, fill="x")
+            setattr(self, f"dest{i+1}_entry", entry)
+
+            Button(frame, text=f"Move to {text}", command=lambda i=i: self.move_image(i+1), **button_style).pack(side="right", padx=(5, 0))
+
+        # Delete button
+        self.delete_button = Button(right_frame, text="Delete Current Image", command=self.delete_current_image, font=("Arial", 10), bg="red", fg="white", padx=10, pady=5)
+        self.delete_button.grid(row=4, column=0, sticky="ew", pady=(10, 0))
+
+        # Log
+        self.log_text = Text(main_frame, height=5, font=("Arial", 10))
+        self.log_text.grid(row=1, column=0, columnspan=2, sticky="nsew", pady=(10, 0))
+
+    def load_images(self):
         if self.source_directory:
-            self.image_files = [f for f in os.listdir(self.source_directory) if f.endswith('.jpg')]
+            self.image_files = [f for f in os.listdir(self.source_directory) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
             self.current_image_index = 0
             self.show_image()
             self.log_message(f"Selected directory: {self.source_directory}")
-
-    def select_destination(self, dest_number):
-        destination = filedialog.askdirectory()
-        if destination:
-            if dest_number == 1:
-                self.dest1_entry.delete(0, 'end')
-                self.dest1_entry.insert(0, destination)
-            elif dest_number == 2:
-                self.dest2_entry.delete(0, 'end')
-                self.dest2_entry.insert(0, destination)
-            elif dest_number == 3:
-                self.dest3_entry.delete(0, 'end')
-                self.dest3_entry.insert(0, destination)
-            self.log_message(f"Selected destination {dest_number}: {destination}")
+            self.log_message(f"Found {len(self.image_files)} images in the directory.")
 
     def show_image(self):
         if self.image_files:
             img_path = os.path.join(self.source_directory, self.image_files[self.current_image_index])
-            img = Image.open(img_path)
-            img.thumbnail((300, 300))
-            img = ImageTk.PhotoImage(img)
-            self.picture_label.config(image=img)
-            self.picture_label.image = img
+            self.current_image = Image.open(img_path)
+            self.update_image()
             self.log_message(f"Displaying {os.path.basename(img_path)}")
         else:
             self.log_message("No images found in the selected directory.")
+
+    def update_image(self):
+        if self.current_image:
+            # Get the current frame dimensions
+            frame_width = self.image_frame.winfo_width()
+            frame_height = self.image_frame.winfo_height()
+
+            # Check if frame dimensions are valid
+            if frame_width <= 1 or frame_height <= 1:
+                # Frame not properly sized yet, schedule an update for later
+                self.root.after(100, self.update_image)
+                return
+
+            # Calculate the scaling factor to fit the image in the frame
+            frame_ratio = frame_width / frame_height
+            img_ratio = self.current_image.width / self.current_image.height
+            
+            if img_ratio > frame_ratio:
+                new_width = frame_width
+                new_height = int(new_width / img_ratio)
+            else:
+                new_height = frame_height
+                new_width = int(new_height * img_ratio)
+
+            img_resized = self.current_image.copy()
+            img_resized.thumbnail((new_width, new_height), Image.Resampling.LANCZOS)
+            img_tk = ImageTk.PhotoImage(img_resized)
+            
+            self.picture_label.config(image=img_tk)
+            self.picture_label.image = img_tk
+
+    def select_image_directory(self):
+        self.source_directory = filedialog.askdirectory()
+        self.load_images()
+
+    def select_destination(self, dest_number):
+        destination = filedialog.askdirectory()
+        if destination:
+            getattr(self, f"dest{dest_number}_entry").delete(0, 'end')
+            getattr(self, f"dest{dest_number}_entry").insert(0, destination)
+            self.log_message(f"Selected destination {dest_number}: {destination}")
 
     def move_image(self, dest_number):
         if not self.image_files:
             self.log_message("No image to move.")
             return
 
-        if dest_number == 1:
-            destination_directory = self.dest1_entry.get()
-        elif dest_number == 2:
-            destination_directory = self.dest2_entry.get()
-        elif dest_number == 3:
-            destination_directory = self.dest3_entry.get()
+        destination_directory = getattr(self, f"dest{dest_number}_entry").get()
 
         if not destination_directory:
             self.log_message("Destination not selected. Please choose a destination directory.")
@@ -120,8 +157,8 @@ class ImageMoverApp:
         try:
             shutil.move(source_path, destination_path)
             self.log_message(f"Moved {current_image} to {destination_directory}")
-            self.current_image_index += 1
-            if self.current_image_index < len(self.image_files):
+            self.image_files.pop(self.current_image_index)
+            if self.image_files:
                 self.show_image()
             else:
                 self.log_message("No more images to move.")
@@ -140,14 +177,18 @@ class ImageMoverApp:
         try:
             os.remove(image_path)
             self.log_message(f"Deleted {current_image}")
-            self.current_image_index += 1
-            if self.current_image_index < len(self.image_files):
+            self.image_files.pop(self.current_image_index)
+            if self.image_files:
                 self.show_image()
             else:
                 self.log_message("No more images to display.")
                 self.picture_label.config(image='')
         except Exception as ex:
             self.log_message(f"Error deleting file: {str(ex)}")
+
+    def log_message(self, message):
+        self.log_text.insert('end', message + "\n")
+        self.log_text.see('end')
 
 if __name__ == "__main__":
     root = Tk()

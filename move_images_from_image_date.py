@@ -61,5 +61,11 @@ def move_images_based_on_date(source_dir, batch_size=10, max_workers=4):
             future.result()
 
 if __name__ == "__main__":
-    source_dir = r'C:\Users\rxg5517\OneDrive - The Pennsylvania State University\DRONES ONLY\unprocessed_images'
-    move_images_based_on_date(source_dir)
+    unprocessed_images_dir = r'C:\Users\rxg5517\OneDrive - The Pennsylvania State University\DRONES ONLY\unprocessed_images'
+    phragmites_dir = r'C:\Users\rxg5517\OneDrive - The Pennsylvania State University\DRONES ONLY\phragmites'
+    narrowleaf_cattail_dir = r'C:\Users\rxg5517\OneDrive - The Pennsylvania State University\DRONES ONLY\narrowleaf_cattail'
+    purple_loosestrife_dir = r'C:\Users\rxg5517\OneDrive - The Pennsylvania State University\DRONES ONLY\purple_loosestrife'
+    move_images_based_on_date(unprocessed_images_dir)
+    move_images_based_on_date(phragmites_dir)
+    move_images_based_on_date(narrowleaf_cattail_dir)
+    move_images_based_on_date(purple_loosestrife_dir)
